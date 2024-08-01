@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.pranjal.grpc.train";
+option java_outer_classname = "TrainProto";
+option objc_class_prefix = "TRN";
+
+package train;
+
+// The train ticket service definition.
+service TrainTicketService {
+  // Submit a purchase for a ticket
+  rpc PurchaseTicket (PurchaseTicketRequest) returns (PurchaseTicketResponse);
+
+  // Get receipt details
+  rpc GetReceipt (GetReceiptRequest) returns (PurchaseTicketResponse);
+
+  // View users and their allocated seats by section
+  rpc GetUsersBySection (GetUsersBySectionRequest) returns (stream UserSeat);
+
+  // Remove a user from the train
+  rpc RemoveUser (RemoveUserRequest) returns (RemoveUserResponse);
+
+  // Modify a user's seat
+  rpc ModifyUserSeat (ModifyUserSeatRequest) returns (ModifyUserSeatResponse);
+}
+
+// Message to represent a user
+message User {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+}
+
+// Message to represent a ticket purchase
+message PurchaseTicketRequest {
+  string from = 1;
+  string to = 2;
+  User user = 3;
+  double price_paid = 4;
+}
+
+message PurchaseTicketResponse {
+  string from = 1;
+  string to = 2;
+  double price_paid = 3;
+  string seat_section = 4;
+  string seat_number = 5;
+  User user = 6;
+}
+
+// Message to represent a receipt request for user
+message GetReceiptRequest {
+  string email = 1;
+}
+
+// Message to represent a request for users by section
+message GetUsersBySectionRequest {
+  string section = 1;
+}
+
+message UserSeat {
+  User user = 1;
+  string seat_section = 2;
+  string seat_number = 3;
+}
+
+// Message to represent a request to remove a user
+message RemoveUserRequest {
+  string email = 1;
+}
+
+message RemoveUserResponse {
+  string message = 1;
+}
+
+// Message to represent a request to modify a user's seat
+message ModifyUserSeatRequest {
+  string ticket_id = 1;
+  string new_seat_section = 2;
+  string new_seat_number = 3;
+}
+
+message ModifyUserSeatResponse {
+  string message = 1;
+}
