@@ -1,0 +1,185 @@
+{
+	"info": {
+		"_postman_id": "92d2407a-db29-4e87-a068-b1aa1827b292",
+		"name": "GRPC-Example-Client",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23165061"
+	},
+	"item": [
+		{
+			"name": "Purchase Ticket",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()",
+							"console.log(response.user.email);",
+							"pm.globals.set('ticketUserEmail', response.user.email);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from\": \"{{$randomCity}}\",\n    \"pricePaid\": 5678,\n    \"to\": \"{{$randomCity}}\",\n    \"user\": {\n        \"email\": \"{{$randomEmail}}\",\n        \"firstName\": \"{{$randomFirstName}}\",\n        \"lastName\": \"{{$randomLastName}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/ticket/purchase",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ticket",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Receipt for User by Email",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/user/{{ticketUserEmail}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"{{ticketUserEmail}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All seats from one section for user",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {},
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from\": \"{{$randomCity}}\",\n    \"pricePaid\": 5678,\n    \"to\": \"{{$randomCity}}\",\n    \"user\": {\n        \"email\": \"{{$randomEmail}}\",\n        \"firstName\": \"{{$randomFirstName}}\",\n        \"lastName\": \"{{$randomLastName}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/user/seats?sectionName=A",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"seats"
+					],
+					"query": [
+						{
+							"key": "sectionName",
+							"value": "A"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove user by Email",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from\": \"{{$randomCity}}\",\n    \"pricePaid\": 5678,\n    \"to\": \"{{$randomCity}}\",\n    \"user\": {\n        \"email\": \"{{$randomEmail}}\",\n        \"firstName\": \"{{$randomFirstName}}\",\n        \"lastName\": \"{{$randomLastName}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/user/{{ticketUserEmail}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"{{ticketUserEmail}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify User Seat",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{ticketUserEmail}}\",\n    \"newSeatNumber\": \"17\",\n    \"newSeatSection\": \"A\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/user/modify",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"modify"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
