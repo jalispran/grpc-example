@@ -22,4 +22,13 @@ dependencies {
     implementation 'io.grpc:grpc-util:1.63.0'
     compileOnly 'org.projectlombok:lombok:1.18.20'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+    testImplementation 'io.grpc:grpc-testing:1.63.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
