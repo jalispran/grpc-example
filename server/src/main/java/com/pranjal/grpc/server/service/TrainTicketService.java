@@ -8,6 +8,7 @@ import com.pranjal.grpc.server.entity.Ticket;
 import com.pranjal.grpc.server.entity.User;
 import com.pranjal.grpc.train.GetReceiptRequest;
 import com.pranjal.grpc.train.GetUsersBySectionRequest;
+import com.pranjal.grpc.train.ModifyUserSeatRequest;
 import com.pranjal.grpc.train.PurchaseTicketRequest;
 import com.pranjal.grpc.train.PurchaseTicketResponse;
 import com.pranjal.grpc.train.RemoveUserRequest;
@@ -136,6 +137,55 @@ public class TrainTicketService extends TrainTicketServiceImplBase {
                 .ifPresent(ticket -> ticketDAO.deleteByTicketId(ticket.getTicketId()));
         responseObserver.onNext(RemoveUserResponse.newBuilder()
                 .setMessage("removed")
+                .build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void modifyUserSeat(ModifyUserSeatRequest request, StreamObserver<PurchaseTicketResponse> responseObserver) {
+        String email = request.getEmail();
+        String newSeatSection = request.getNewSeatSection();
+        String newSeatNumber = request.getNewSeatNumber();
+        if (!StringUtils.hasText(email)) {
+            throw new IllegalArgumentException("email can not be null");
+        }
+        User user = userDAO.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        if (!seatDAO.getSections().contains(newSeatSection)) {
+            throw new IllegalArgumentException("Invalid seat section selected");
+        }
+        Seat deletedSeat = seatDAO.deleteByEmail(email);
+        Optional<Ticket> ticketBySeatId = ticketDAO.getTicketBySeatId(deletedSeat.getSeatId());
+        if (ticketBySeatId.isEmpty()) {
+            throw new IllegalArgumentException("no ticket found");
+        }
+        Ticket deletedTicket = ticketBySeatId.get();
+        ticketDAO.deleteByTicketId(deletedTicket.getTicketId());
+        Seat newSeat = Seat.builder()
+                .userEmail(email)
+                .seatSection(newSeatSection)
+                .seatNumber(newSeatNumber)
+                .build();
+        Seat savedSeat = seatDAO.save(newSeat);
+        Ticket ticket = Ticket.builder()
+                .fromLocation(deletedTicket.getFromLocation())
+                .toLocation(deletedTicket.getToLocation())
+                .pricePaid(deletedTicket.getPricePaid())
+                .userEmail(email)
+                .seatId(savedSeat.getSeatId())
+                .build();
+        Ticket savedTicket = ticketDAO.save(ticket);
+        responseObserver.onNext(PurchaseTicketResponse.newBuilder()
+                .setFrom(savedTicket.getFromLocation())
+                .setTo(savedTicket.getToLocation())
+                .setPricePaid(savedTicket.getPricePaid())
+                .setSeatSection(savedSeat.getSeatSection())
+                .setSeatNumber(savedSeat.getSeatNumber())
+                .setUser(com.pranjal.grpc.train.User.newBuilder()
+                        .setFirstName(user.getFirstName())
+                        .setLastName(user.getLastName())
+                        .setEmail(user.getEmail())
+                        .build())
                 .build());
         responseObserver.onCompleted();
     }

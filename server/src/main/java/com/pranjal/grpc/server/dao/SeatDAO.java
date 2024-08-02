@@ -50,9 +50,25 @@ public class SeatDAO {
         }
         if (SEAT_SECTION_A.equals(seat.getSeatSection())
                 && !aSecSeatNumbers.contains(seat.getSeatNumber())) {
+            if (Integer.parseInt(seat.getSeatNumber()) > SEATS_PER_SECTION) {
+                throw new IllegalArgumentException("can not assign seat number: " + seat.getSeatNumber() + ", total seats per section: " + SEATS_PER_SECTION);
+            }
+            if (aSecSeatNumbers.size() < Integer.parseInt(seat.getSeatNumber())) {
+                for (int i=aSecSeatNumbers.size()-1; i<Integer.parseInt(seat.getSeatNumber()); i++) {
+                    aSecSeatNumbers.add(i, null);
+                }
+            }
             aSecSeatNumbers.add(Integer.parseInt(seat.getSeatNumber()), seat.getSeatNumber());
         } else if (SEAT_SECTION_B.equals(seat.getSeatSection())
                 && !bSecSeatNumbers.contains(seat.getSeatNumber())) {
+            if (Integer.parseInt(seat.getSeatNumber()) > SEATS_PER_SECTION) {
+                throw new IllegalArgumentException("can not assign seat number: " + seat.getSeatNumber() + ", total seats per section: " + SEATS_PER_SECTION);
+            }
+            if (bSecSeatNumbers.size() < Integer.parseInt(seat.getSeatNumber())) {
+                for (int i=bSecSeatNumbers.size()-1; i<Integer.parseInt(seat.getSeatNumber()); i++) {
+                    bSecSeatNumbers.add(i, null);
+                }
+            }
             bSecSeatNumbers.add(Integer.parseInt(seat.getSeatNumber()), seat.getSeatNumber());
         } else {
             throw new IllegalArgumentException("Seat number: " + seat.getSeatNumber() + " not available in section: " + seat.getSeatSection());
@@ -82,7 +98,7 @@ public class SeatDAO {
         return Optional.empty();
     }
 
-    public Optional<Seat> findFirstEmptySeatNumber(Vector<String> seatSection) {
+    private Optional<Seat> findFirstEmptySeatNumber(Vector<String> seatSection) {
         for (int i = 0; i < seatSection.size() || seatSection.size() < SEATS_PER_SECTION; i++) {
             if (seatSection.size() == i || seatSection.get(i) == null) {
                 return  Optional.of(Seat.builder()
@@ -98,20 +114,26 @@ public class SeatDAO {
     }
 
     public Seat deleteByEmail(String email) {
-        if (!StringUtils.hasText(email)) {
-            throw new IllegalArgumentException("email can not be empty");
-        }
-        Seat seat = seats.values().stream()
-                .filter(s -> email.equals(s.getUserEmail()))
-                .findFirst()
+        Seat seat = findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("seat not found for user"));
         seats.remove(seat.getSeatId());
         if (SEAT_SECTION_A.equals(seat.getSeatSection())) {
+            aSecSeatNumbers.remove(Integer.parseInt(seat.getSeatNumber()));
             aSecSeatNumbers.add(Integer.parseInt(seat.getSeatNumber()), null);
         } else if (SEAT_SECTION_B.equals(seat.getSeatSection())) {
+            bSecSeatNumbers.remove(Integer.parseInt(seat.getSeatNumber()));
             bSecSeatNumbers.add(Integer.parseInt(seat.getSeatNumber()), null);
         }
         return seat;
+    }
+
+    private Optional<Seat> findByEmail(String email) {
+        if (!StringUtils.hasText(email)) {
+            throw new IllegalArgumentException("email can not be empty");
+        }
+        return seats.values().stream()
+                .filter(s -> email.equals(s.getUserEmail()))
+                .findFirst();
     }
 
 }

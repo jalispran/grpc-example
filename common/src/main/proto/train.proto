@@ -22,7 +22,7 @@ service TrainTicketService {
   rpc RemoveUser (RemoveUserRequest) returns (RemoveUserResponse);
 
   // Modify a user's seat
-  rpc ModifyUserSeat (ModifyUserSeatRequest) returns (ModifyUserSeatResponse);
+  rpc ModifyUserSeat (ModifyUserSeatRequest) returns (PurchaseTicketResponse);
 }
 
 // Message to represent a user
@@ -76,11 +76,7 @@ message RemoveUserResponse {
 
 // Message to represent a request to modify a user's seat
 message ModifyUserSeatRequest {
-  string ticket_id = 1;
+  string email = 1;
   string new_seat_section = 2;
   string new_seat_number = 3;
-}
-
-message ModifyUserSeatResponse {
-  string message = 1;
 }
